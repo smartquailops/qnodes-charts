@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qnode0-app-dev
+spec:
+  selector:
+    matchLabels:
+      app: qnode0-app-dev
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: qnode0-app-dev
+    spec:
+      containers:
+      - name: qnode0-app-dev
+        image: smartquail/qnode0_app:latest
+        imagePullPolicy: Always
+        resources:
+            requests:
+              cpu: 8000m
+              memory: 1Gi
+            limits:
+              cpu: 1000m
+              memory: 2Gi
+        ports:
+        - containerPort: 8000
+        #command: ["gunicorn", "--worker-tmp-dir", "/dev/shm", "qnode01_app.wsgi:application", "--bind", "0.0.0.0:8000"]
+        envFrom:
+          - secretRef:
+              name: qnode0-app-dev-env
+          - configMapRef:
+                name: qnode0-app-config
+        env:
+          - name: PORT
+            value: "8000"       
+      imagePullSecrets:
+        - name: minikube
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qnode0-dev-service
+  labels:
+    app: qnode01-app-dev
+spec:
+  type: ClusterIP
+  selector:
+    app: qnode0-app-dev
+  ports:
+  - port: 80
+    targetPort: 8000
+    protocol: TCP
