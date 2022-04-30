@@ -6,7 +6,7 @@ spec:
   selector:
     matchLabels:
       app: qnode0-app-dev
-  replicas: 1
+  replicas: 2
   template:
     metadata:
       labels:
